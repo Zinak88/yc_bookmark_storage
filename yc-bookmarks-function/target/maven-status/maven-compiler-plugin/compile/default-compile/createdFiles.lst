@@ -1,0 +1,3 @@
+org\smartup\BookmarkHandler.class
+org\smartup\dao\BookmarkDao.class
+org\smartup\service\BookmarkService.class

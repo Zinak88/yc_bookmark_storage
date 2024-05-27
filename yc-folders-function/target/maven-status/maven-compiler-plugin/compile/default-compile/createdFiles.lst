@@ -1,0 +1,3 @@
+org\smartup\FolderHandler.class
+org\smartup\service\FolderService.class
+org\smartup\dao\FolderDao.class

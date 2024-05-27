@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="yc-folders-function" />
+        <module name="yc-common" />
+        <module name="yc-bookmarks-function" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="yc-bookmarks-function" target="19" />
+      <module name="yc-common" target="19" />
+      <module name="yc-folders-function" target="19" />
+      <module name="zinakov_serverless_module4" target="19" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
