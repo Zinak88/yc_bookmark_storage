@@ -1,18 +1,22 @@
 package org.smartup.service;
 
-import com.jsoniter.JsonIterator;
+import com.google.gson.Gson;
 import lombok.Setter;
 import org.smartup.RequestData;
 import org.smartup.dao.FolderDao;
+import org.smartup.dbc.DatabaseConnector;
 import org.smartup.dto.request.FolderRequestDto;
 import org.smartup.dto.response.FolderResponseDto;
 import org.smartup.exception.ApiException;
 import org.smartup.exception.BookmarkException;
+import org.smartup.exception.DatabaseException;
 import org.smartup.exception.ServerErrorCode;
 import org.smartup.mapper.Mapper;
+
 import org.smartup.model.Folder;
 import yandex.cloud.sdk.functions.Context;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,22 +25,27 @@ public class FolderService {
     private Mapper mapper = new Mapper();
     @Setter
     private FolderDao folderDao = new FolderDao();
+    @Setter
+    private Connection connection;
+    private static final Gson gson = new Gson();
 
     public FolderResponseDto addNewFolder(Context context, RequestData request) throws ApiException {
 
         if ((request.getBody()==null) || (!request.getHeaders().get("Content-Type").equals("application/json"))) {
             throw new BookmarkException(ServerErrorCode.INCORRECT_POST_BODY);
         }
-        FolderRequestDto dto = JsonIterator.deserialize(request.getBody(), FolderRequestDto.class);
+        FolderRequestDto dto = gson.fromJson(request.getBody(), FolderRequestDto.class);
         if (dto.getTitle()==null || dto.getTitle().isBlank()) {
             throw new BookmarkException(ServerErrorCode.TITLE_IS_BLANK);
         }
         Folder folder = mapper.folderRequestDtoToFolder(dto);
-        folder = folderDao.addNewFolder(context, folder);
+        initConnection(context);
+        folder = folderDao.addNewFolder(connection, folder);
         return mapper.folderToFolderResponseDto(folder);
     }
     public List<FolderResponseDto> getAllFolders(Context context) throws ApiException{
-        List<Folder> folders = folderDao.getAllFolders(context);
+        initConnection(context);
+        List<Folder> folders = folderDao.getAllFolders(connection);
         List<FolderResponseDto> responseDto = new ArrayList<>();
         for (Folder folder : folders) {
             responseDto.add(mapper.folderToFolderResponseDto(folder));
@@ -44,13 +53,9 @@ public class FolderService {
         return responseDto;
     }
     public FolderResponseDto getFolder(Context context, String requestId) throws ApiException{
-        long id;
-        try {
-            id = Long.parseLong(requestId);
-        } catch (NumberFormatException exc) {
-            throw new BookmarkException(ServerErrorCode.FOLDER_ID_INCORRECT);
-        }
-        Folder folder = folderDao.getFolder(context, id);
+        long id = parseRequestId(requestId);
+        initConnection(context);
+        Folder folder = folderDao.getFolder(connection, id);
         if (folder==null) {
             throw new BookmarkException(ServerErrorCode.FOLDER_ID_NOT_FOUND);
         }
@@ -58,13 +63,9 @@ public class FolderService {
     }
 
     public FolderResponseDto deleteFolder(Context context, String requestId) throws ApiException{
-        long id;
-        try {
-            id = Long.parseLong(requestId);
-        } catch (NumberFormatException exc) {
-            throw new BookmarkException(ServerErrorCode.FOLDER_ID_INCORRECT);
-        }
-        Folder folder = folderDao.deleteFolder(context, id);
+        long id = parseRequestId(requestId);
+        initConnection(context);
+        Folder folder = folderDao.deleteFolder(connection, id);
         if (folder==null) {
             throw new BookmarkException(ServerErrorCode.FOLDER_ID_NOT_FOUND);
         } else {
@@ -73,6 +74,21 @@ public class FolderService {
     }
 
     public void deleteAllFolders(Context context) throws ApiException{
-        folderDao.deleteAllFolders(context);
+        initConnection(context);
+        folderDao.deleteAllFolders(connection);
+    }
+
+    private void initConnection (Context context) throws DatabaseException {
+        if (connection==null){
+            connection = new DatabaseConnector().get(context);
+        }
+    }
+
+    private long parseRequestId (String requestId) throws BookmarkException{
+        try {
+            return Long.parseLong(requestId);
+        } catch (NumberFormatException exc) {
+            throw new BookmarkException(ServerErrorCode.FOLDER_ID_INCORRECT);
+        }
     }
 }

@@ -36,7 +36,7 @@ public class FolderHandler implements YcFunction<RequestData, ResponseData> {
                     LOGGER.info(gson.toJson(responseDto));
                     return new ResponseData(gson.toJson(responseDto));
                 } catch (DatabaseException exc) {
-                    return new ResponseData(503, "Database temporarily not available", "text/plain");
+                    return new ResponseData(exc.getStatusCode(), exc.getMessage(), "text/plain");
                 } catch (ApiException exc) {
                     return new ResponseData(400, exc.getMessage(), "text/plain");
                 }
@@ -51,7 +51,7 @@ public class FolderHandler implements YcFunction<RequestData, ResponseData> {
                         return new ResponseData(gson.toJson(responseDto));
                     }
                 } catch (DatabaseException exc) {
-                    return new ResponseData(503, "Database temporarily not available", "text/plain");
+                    return new ResponseData(exc.getStatusCode(), exc.getMessage(), "text/plain");
                 } catch (ApiException exc) {
                     return new ResponseData(400, exc.getMessage(), "text/plain");
                 }
@@ -66,7 +66,7 @@ public class FolderHandler implements YcFunction<RequestData, ResponseData> {
                         return new ResponseData(gson.toJson(responseDto));
                     }
                 } catch (DatabaseException exc) {
-                    return new ResponseData(503, "Database temporarily not available", "text/plain");
+                    return new ResponseData(exc.getStatusCode(), exc.getMessage(), "text/plain");
                 } catch (ApiException exc) {
                     return new ResponseData(400, exc.getMessage(), "text/plain");
                 }

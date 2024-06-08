@@ -4,6 +4,8 @@ import com.jsoniter.JsonIterator;
 import com.jsoniter.spi.TypeLiteral;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartup.exception.DatabaseException;
+import org.smartup.exception.ServerErrorCode;
 import yandex.cloud.sdk.functions.Context;
 
 import java.sql.Connection;
@@ -15,7 +17,7 @@ import java.util.Properties;
 public class DatabaseConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnector.class);
 
-    public Connection get (Context c) {
+    public Connection get (Context c) throws DatabaseException{
 
         var tokenMap = JsonIterator.deserialize(c.getTokenJson(), new TypeLiteral<Map<String, Object>>() {
         });
@@ -40,7 +42,7 @@ public class DatabaseConnector {
             LOGGER.info("# Connected");
         } catch (SQLException e) {
             LOGGER.error("# Cannot initiate connection", e);
-            throw new RuntimeException(e);
+            throw new DatabaseException(503, ServerErrorCode.FAIL_DATABASE_CONNECTION);
         }
         return connection;
     }
