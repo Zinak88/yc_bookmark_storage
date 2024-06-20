@@ -1,11 +1,13 @@
 package org.smartup.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.smartup.RequestData;
 import org.smartup.dao.BookmarkDao;
-import org.smartup.exception.ApiException;
+import org.smartup.exception.BookmarkErrorCode;
+import org.smartup.exception.BookmarkException;
 import org.smartup.model.Bookmark;
 import yandex.cloud.sdk.functions.Context;
 
@@ -32,7 +34,7 @@ public class BookmarkServiceTest {
         bookmarkService.setConnection(connection);
     }
     @Test
-    void addNewBookmark () throws ApiException {
+    void addNewBookmark () throws BookmarkException {
         Bookmark bookmark = new Bookmark();
         bookmark.setId(1L);
         bookmark.setAddedDate(LocalDate.ofYearDay(2000, 1));
@@ -44,15 +46,30 @@ public class BookmarkServiceTest {
 
         Mockito.verify(bookmarkDao).addNewBookmark(any(), any());
     }
+    @Test
+    void addNewBookmarkWithoutUrl () {
+        requestData = new RequestData();
+        requestData.setHeaders(Map.of("Content-Type","application/json"));
+        requestData.setBody("{ }");
+        BookmarkException exc = Assertions.assertThrows(BookmarkException.class, () -> bookmarkService.addNewBookmark(context, requestData));
+        Assertions.assertEquals(BookmarkErrorCode.URL_IS_BLANK, exc.getErrorCode());
+    }
 
     @Test
-    void getAllBookmarks () throws ApiException {
+    void addNewBookmarkWrongBody () {
+        requestData = new RequestData();
+        BookmarkException exc = Assertions.assertThrows(BookmarkException.class, () -> bookmarkService.addNewBookmark(context, requestData));
+        Assertions.assertEquals(BookmarkErrorCode.INCORRECT_POST_BODY, exc.getErrorCode());
+    }
+
+    @Test
+    void getAllBookmarks () throws BookmarkException {
         bookmarkService.getBookmarks(context);
         Mockito.verify(bookmarkDao).getAllBookmarks(any());
     }
 
     @Test
-    void getBookmark () throws ApiException {
+    void getBookmark () throws BookmarkException {
         Bookmark bookmark = new Bookmark();
         bookmark.setId(1L);
         bookmark.setAddedDate(LocalDate.ofYearDay(2000, 1));
@@ -60,9 +77,14 @@ public class BookmarkServiceTest {
         bookmarkService.getBookmark(context, "1");
         Mockito.verify(bookmarkDao).getBookmark(connection, 1L);
     }
+    @Test
+    void getBookmarkWrongId (){
+        BookmarkException exc = Assertions.assertThrows(BookmarkException.class, () -> bookmarkService.getBookmark(context, "text"));
+        Assertions.assertEquals(BookmarkErrorCode.BOOKMARK_ID_INCORRECT, exc.getErrorCode());
+    }
 
     @Test
-    void deleteBookmark () throws ApiException {
+    void deleteBookmark () throws BookmarkException {
         Bookmark bookmark = new Bookmark();
         bookmark.setId(1L);
         bookmark.setAddedDate(LocalDate.ofYearDay(2000, 1));
@@ -70,9 +92,15 @@ public class BookmarkServiceTest {
         bookmarkService.deleteBookmark(context, "1");
         Mockito.verify(bookmarkDao).deleteBookmark(connection, 1L);
     }
+    @Test
+    void deleteBookmarkWrongId (){
+        BookmarkException exc = Assertions.assertThrows(BookmarkException.class, () -> bookmarkService.deleteBookmark(context, "text"));
+        Assertions.assertEquals(BookmarkErrorCode.BOOKMARK_ID_INCORRECT, exc.getErrorCode());
+    }
+
 
     @Test
-    void deleteAllBookmarks () throws ApiException {
+    void deleteAllBookmarks () throws BookmarkException {
         bookmarkService.deleteAllBookmarks(context);
         Mockito.verify(bookmarkDao).deleteAllBookmarks(connection);
     }

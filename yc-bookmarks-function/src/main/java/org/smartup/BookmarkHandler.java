@@ -4,8 +4,7 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartup.dto.response.BookmarkResponseDto;
-import org.smartup.exception.ApiException;
-import org.smartup.exception.DatabaseException;
+import org.smartup.exception.BookmarkException;
 import org.smartup.service.BookmarkService;
 import yandex.cloud.sdk.functions.Context;
 import yandex.cloud.sdk.functions.YcFunction;
@@ -32,10 +31,8 @@ public class BookmarkHandler implements YcFunction<RequestData, ResponseData> {
                 try {
                     BookmarkResponseDto responseDto = bookmarkService.addNewBookmark(context, request);
                     return new ResponseData(gson.toJson(responseDto));
-                } catch (DatabaseException exc) {
-                    return new ResponseData(exc.getStatusCode(), exc.getMessage(), "text/plain");
-                } catch (ApiException exc) {
-                    return new ResponseData(400, exc.getMessage(), "text/plain");
+                } catch (BookmarkException exc) {
+                    return getResponseFromBookmarkException(exc);
                 }
             }
             case ("GET") -> {
@@ -47,10 +44,8 @@ public class BookmarkHandler implements YcFunction<RequestData, ResponseData> {
                         BookmarkResponseDto responseDto = bookmarkService.getBookmark(context, id);
                         return new ResponseData(gson.toJson(responseDto));
                     }
-                } catch (DatabaseException exc) {
-                    return new ResponseData(exc.getStatusCode(), exc.getMessage(), "text/plain");
-                } catch (ApiException exc) {
-                    return new ResponseData(400, exc.getMessage(), "text/plain");
+                } catch (BookmarkException exc) {
+                    return getResponseFromBookmarkException(exc);
                 }
             }
             case ("DELETE") -> {
@@ -62,10 +57,8 @@ public class BookmarkHandler implements YcFunction<RequestData, ResponseData> {
                         BookmarkResponseDto responseDto = bookmarkService.deleteBookmark(context, id);
                         return new ResponseData(gson.toJson(responseDto));
                     }
-                } catch (DatabaseException exc) {
-                    return new ResponseData(exc.getStatusCode(), exc.getMessage(), "text/plain");
-                } catch (ApiException exc) {
-                    return new ResponseData(400, exc.getMessage(), "text/plain");
+                } catch (BookmarkException exc) {
+                    return getResponseFromBookmarkException(exc);
                 }
             }
             case ("OPTIONS") -> {
@@ -78,6 +71,16 @@ public class BookmarkHandler implements YcFunction<RequestData, ResponseData> {
         return new ResponseData (405, "Method not supported", "text/plain" );
     }
 
+    private ResponseData getResponseFromBookmarkException(BookmarkException exc) {
+        final int statusCode;
+        switch (exc.getErrorCode()) {
+            case FOLDER_ID_NOT_FOUND, BOOKMARK_ID_NOT_FOUND -> statusCode = 404;
+            case FAIL_DATABASE_CONNECTION -> statusCode = 503;
+            case FAIL_EXECUTE_QUERY -> statusCode = 500;
+            default  -> statusCode = 400;
+        }
+        return new ResponseData(statusCode, exc.getMessage(), "text/plain");
+    }
 
 
 }

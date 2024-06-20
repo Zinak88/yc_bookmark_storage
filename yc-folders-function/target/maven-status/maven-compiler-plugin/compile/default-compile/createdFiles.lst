@@ -1,3 +1,10 @@
+org\smartup\mapper\FolderMapper.class
 org\smartup\FolderHandler.class
+org\smartup\FolderHandler$1.class
+org\smartup\dto\response\FolderResponseDto.class
+org\smartup\dto\request\FolderRequestDto.class
+org\smartup\model\Folder.class
+org\smartup\exception\FolderErrorCode.class
 org\smartup\service\FolderService.class
 org\smartup\dao\FolderDao.class
+org\smartup\exception\FolderException.class

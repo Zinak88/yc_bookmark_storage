@@ -3,9 +3,8 @@ package org.smartup.dao;
 import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartup.exception.ApiException;
-import org.smartup.exception.DatabaseException;
-import org.smartup.exception.ServerErrorCode;
+import org.smartup.exception.FolderErrorCode;
+import org.smartup.exception.FolderException;
 import org.smartup.model.Folder;
 
 import java.sql.*;
@@ -15,7 +14,7 @@ import java.util.List;
 public class FolderDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(FolderDao.class);
 
-    public Folder addNewFolder(Connection connection, Folder folder) throws ApiException{
+    public Folder addNewFolder(Connection connection, Folder folder) throws FolderException {
         LOGGER.info(" # Trying to add folder: "+folder.getTitle());
 
         String query = "INSERT INTO folder(title, description, parent_folder) VALUES (?, ?, ?) RETURNING *;";
@@ -35,16 +34,16 @@ public class FolderDao {
         } catch (PSQLException e) {
             LOGGER.error("# Fail execute query "+ e.getServerErrorMessage());
             if (e.getSQLState().equals("23503")) {
-                throw new DatabaseException(400, ServerErrorCode.FOLDER_ID_NOT_FOUND);
+                throw new FolderException(FolderErrorCode.FOLDER_ID_NOT_FOUND);
             }
-            throw new DatabaseException(500, ServerErrorCode.FAIL_EXECUTE_QUERY);
+            throw new FolderException(FolderErrorCode.FAIL_EXECUTE_QUERY);
         } catch (SQLException e) {
             LOGGER.error(" # Fail execute query", e);
-            throw new DatabaseException(500, ServerErrorCode.FAIL_EXECUTE_QUERY);
+            throw new FolderException(FolderErrorCode.FAIL_EXECUTE_QUERY);
         }
     }
 
-    public Folder deleteFolder(Connection connection, Long folderId) throws ApiException {
+    public Folder deleteFolder(Connection connection, Long folderId) throws FolderException {
         LOGGER.info(" # Trying to delete folder. Id: "+folderId);
 
         String query = "DELETE FROM folder WHERE folder_id = ? RETURNING * ;";
@@ -57,12 +56,12 @@ public class FolderDao {
             return folders.isEmpty() ? null : folders.get(0);
         } catch (SQLException e) {
             LOGGER.error(" # Fail execute query", e);
-            throw new DatabaseException(500, ServerErrorCode.FAIL_EXECUTE_QUERY);
+            throw new FolderException(FolderErrorCode.FAIL_EXECUTE_QUERY);
         }
     }
 
 
-    public  List<Folder> getAllFolders(Connection connection) throws ApiException{
+    public  List<Folder> getAllFolders(Connection connection) throws FolderException{
         LOGGER.info(" # Trying to get all folders");
             String query = "SELECT * FROM folder;" ;
             try (var statement = connection.prepareStatement(query)) {
@@ -72,10 +71,10 @@ public class FolderDao {
                 return getFoldersFromResultSet(rs);
             } catch (SQLException e) {
                 LOGGER.error(" # Fail execute query", e);
-                throw new DatabaseException(500, ServerErrorCode.FAIL_EXECUTE_QUERY);
+                throw new FolderException(FolderErrorCode.FAIL_EXECUTE_QUERY);
             }
     }
-    public Folder getFolder(Connection connection, Long folderId) throws ApiException{
+    public Folder getFolder(Connection connection, Long folderId) throws FolderException{
         LOGGER.info(" # Trying to get folder. ID: "+folderId);
 
         String query = "SELECT * FROM folder WHERE folder_id=? ;" ;
@@ -89,10 +88,10 @@ public class FolderDao {
 
         } catch (SQLException e) {
             LOGGER.error(" # Fail execute query", e);
-            throw new DatabaseException(500, ServerErrorCode.FAIL_EXECUTE_QUERY);
+            throw new FolderException(FolderErrorCode.FAIL_EXECUTE_QUERY);
         }
     }
-    public void deleteAllFolders(Connection connection) throws ApiException{
+    public void deleteAllFolders(Connection connection) throws FolderException{
         LOGGER.info(" # Trying to delete all folders");
 
         String query = "DELETE FROM folder;";
@@ -101,7 +100,7 @@ public class FolderDao {
             LOGGER.info(" # All folders deleted");
         } catch (SQLException e) {
             LOGGER.error(" # Fail execute query", e);
-            throw new DatabaseException(500, ServerErrorCode.FAIL_EXECUTE_QUERY);
+            throw new FolderException(FolderErrorCode.FAIL_EXECUTE_QUERY);
         }
     }
 

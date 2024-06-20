@@ -1,3 +1,10 @@
+org\smartup\dto\request\BookmarkRequestDto.class
+org\smartup\exception\BookmarkErrorCode.class
 org\smartup\BookmarkHandler.class
+org\smartup\mapper\BookmarkMapper.class
+org\smartup\dto\response\BookmarkResponseDto.class
+org\smartup\exception\BookmarkException.class
+org\smartup\model\Bookmark.class
 org\smartup\dao\BookmarkDao.class
+org\smartup\BookmarkHandler$1.class
 org\smartup\service\BookmarkService.class

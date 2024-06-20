@@ -1,2 +1,3 @@
+org\smartup\mapper\BookmarkMapperTest.class
 org\smartup\BookmarkHandlerTest.class
 org\smartup\service\BookmarkServiceTest.class

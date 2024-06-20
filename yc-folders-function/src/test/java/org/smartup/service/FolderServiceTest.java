@@ -1,13 +1,13 @@
 package org.smartup.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.smartup.RequestData;
 import org.smartup.dao.FolderDao;
-import org.smartup.exception.ApiException;
-import org.smartup.mapper.Mapper;
-import org.smartup.model.Bookmark;
+import org.smartup.exception.FolderErrorCode;
+import org.smartup.exception.FolderException;
 import org.smartup.model.Folder;
 import yandex.cloud.sdk.functions.Context;
 
@@ -34,7 +34,7 @@ public class FolderServiceTest {
 
     }
     @Test
-    void addNewFolder () throws ApiException {
+    void addNewFolder () throws FolderException {
         Folder folder = new Folder();
         folder.setId(1L);
         folder.setAddedDate(LocalDate.ofYearDay(2000, 1));
@@ -47,15 +47,30 @@ public class FolderServiceTest {
 
         Mockito.verify(folderDao).addNewFolder(any(), any());
     }
+    @Test
+    void addNewFolderWithoutTitle () {
+        requestData = new RequestData();
+        requestData.setHeaders(Map.of("Content-Type","application/json"));
+        requestData.setBody("{ }");
+        FolderException exc = Assertions.assertThrows(FolderException.class, () -> folderService.addNewFolder(context, requestData));
+        Assertions.assertEquals(FolderErrorCode.TITLE_IS_BLANK, exc.getErrorCode());
+    }
 
     @Test
-    void getAllFolders () throws ApiException {
+    void addNewFolderWrongBody () {
+        requestData = new RequestData();
+        FolderException exc = Assertions.assertThrows(FolderException.class, () -> folderService.addNewFolder(context, requestData));
+        Assertions.assertEquals(FolderErrorCode.INCORRECT_POST_BODY, exc.getErrorCode());
+    }
+
+    @Test
+    void getAllFolders () throws FolderException {
         folderService.getAllFolders(context);
         Mockito.verify(folderDao).getAllFolders(connection);
     }
 
     @Test
-    void getFolder () throws ApiException {
+    void getFolder () throws FolderException {
         Folder folder = new Folder();
         folder.setId(1L);
         folder.setAddedDate(LocalDate.ofYearDay(2000, 1));
@@ -64,9 +79,14 @@ public class FolderServiceTest {
         folderService.getFolder(context, "1");
         Mockito.verify(folderDao).getFolder(connection, 1L);
     }
+    @Test
+    void getFolderWrongId (){
+        FolderException exc = Assertions.assertThrows(FolderException.class, () -> folderService.getFolder(context, "text"));
+        Assertions.assertEquals(FolderErrorCode.FOLDER_ID_INCORRECT, exc.getErrorCode());
+    }
 
     @Test
-    void deleteFolder () throws ApiException {
+    void deleteFolder () throws FolderException {
         Folder folder = new Folder();
         folder.setId(1L);
         folder.setAddedDate(LocalDate.ofYearDay(2000, 1));
@@ -75,9 +95,14 @@ public class FolderServiceTest {
         folderService.deleteFolder(context, "1");
         Mockito.verify(folderDao).deleteFolder(connection, 1L);
     }
+    @Test
+    void deleteFolderWrongId (){
+        FolderException exc = Assertions.assertThrows(FolderException.class, () -> folderService.deleteFolder(context, "text"));
+        Assertions.assertEquals(FolderErrorCode.FOLDER_ID_INCORRECT, exc.getErrorCode());
+    }
 
     @Test
-    void deleteAllFolders () throws ApiException {
+    void deleteAllFolders () throws FolderException {
         folderService.deleteAllFolders(context);
         Mockito.verify(folderDao).deleteAllFolders(connection);
     }

@@ -1,3 +1,9 @@
+D:\Java\TochkaVhoda\zinakov_serverless_module4\yc-bookmarks-function\src\main\java\org\smartup\dto\request\BookmarkRequestDto.java
 D:\Java\TochkaVhoda\zinakov_serverless_module4\yc-bookmarks-function\src\main\java\org\smartup\service\BookmarkService.java
+D:\Java\TochkaVhoda\zinakov_serverless_module4\yc-bookmarks-function\src\main\java\org\smartup\dto\response\BookmarkResponseDto.java
+D:\Java\TochkaVhoda\zinakov_serverless_module4\yc-bookmarks-function\src\main\java\org\smartup\mapper\BookmarkMapper.java
+D:\Java\TochkaVhoda\zinakov_serverless_module4\yc-bookmarks-function\src\main\java\org\smartup\model\Bookmark.java
+D:\Java\TochkaVhoda\zinakov_serverless_module4\yc-bookmarks-function\src\main\java\org\smartup\exception\BookmarkErrorCode.java
 D:\Java\TochkaVhoda\zinakov_serverless_module4\yc-bookmarks-function\src\main\java\org\smartup\dao\BookmarkDao.java
+D:\Java\TochkaVhoda\zinakov_serverless_module4\yc-bookmarks-function\src\main\java\org\smartup\exception\BookmarkException.java
 D:\Java\TochkaVhoda\zinakov_serverless_module4\yc-bookmarks-function\src\main\java\org\smartup\BookmarkHandler.java

@@ -1,11 +1,11 @@
 package org.smartup.dbc;
 
-import com.jsoniter.JsonIterator;
-import com.jsoniter.spi.TypeLiteral;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartup.exception.DatabaseException;
-import org.smartup.exception.ServerErrorCode;
 import yandex.cloud.sdk.functions.Context;
 
 import java.sql.Connection;
@@ -18,10 +18,8 @@ public class DatabaseConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnector.class);
 
     public Connection get (Context c) throws DatabaseException{
-
-        var tokenMap = JsonIterator.deserialize(c.getTokenJson(), new TypeLiteral<Map<String, Object>>() {
-        });
-        String token = (String) tokenMap.get("access_token");
+        Map<String, String> tokenMap = new Gson().fromJson(c.getTokenJson(), new TypeToken<Map<String, String>>() {}.getType());
+        String token = tokenMap.get("access_token");
         LOGGER.info(" # Token is parsed: " + token);
 
         var proxyId = System.getenv().get("PROXY"); // Идентификатор подключения
@@ -42,7 +40,7 @@ public class DatabaseConnector {
             LOGGER.info("# Connected");
         } catch (SQLException e) {
             LOGGER.error("# Cannot initiate connection", e);
-            throw new DatabaseException(503, ServerErrorCode.FAIL_DATABASE_CONNECTION);
+            throw new DatabaseException(e);
         }
         return connection;
     }

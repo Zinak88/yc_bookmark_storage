@@ -1,2 +1,3 @@
 org\smartup\FolderHandlerTest.class
+org\smartup\mapper\FolderMapperTest.class
 org\smartup\service\FolderServiceTest.class
